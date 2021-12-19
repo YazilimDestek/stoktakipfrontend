@@ -1,0 +1,237 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Zaman Aşımı Tanımları</h1>
+        <ul>
+            <li><a href="">Zaman Aşımı Tanım Listesi</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    <div class="row mb-3">
+        <div class="col-md-12 mb-3">
+                <button class="btn btn-primary float-right" (click)="timeoutForm.reset();addNewTimeout(newTimeoutModal)">Yeni Zaman Aşımı Ekle</button>
+        </div>
+        <div class="col-md-12">
+            <div class="card o-hidden">
+                <ngx-datatable *ngIf="timeouts?.length" style="box-shadow: none" class="material fullscreen" [style.height]="60*timeouts.length+60+'px'" [columnMode]="'force'"
+                    [headerHeight]="50" [footerHeight]="0" [rowHeight]="60"  [rows]="timeouts">
+                    <ngx-datatable-column name="photo" [maxWidth]="100">
+                        <ng-template ngx-datatable-header-template>
+                            ID
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.id}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Hedef Lokasyon
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.location?.name}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                            <ng-template ngx-datatable-header-template>
+                                Transfer Tipi
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.transType?.name}}
+                            </ng-template>
+                        </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Kategori
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.category?.name}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                            <ng-template ngx-datatable-header-template>
+                                Gün Sayısı
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.days}}
+                            </ng-template>
+                        </ngx-datatable-column>
+                    <ngx-datatable-column >
+                        <ng-template ngx-datatable-header-template>
+                            Zaman Aşım Rengi
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            <div style="width: 100%" [style.background-color]="row.colorAfterTimeout">&nbsp;</div>
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column >
+                            <ng-template ngx-datatable-header-template>
+                                Transfer Sonu Rengi
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                    <div style="width: 100%" [style.background-color]="row.colorAfterTransfer">&nbsp;</div>
+                            </ng-template>
+                        </ngx-datatable-column>
+                    <ngx-datatable-column  [minWidth]="200">
+                        <ng-template ngx-datatable-header-template>
+                            İşlemler
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                <button class="btn btn-wide btn-outline-secondary mr-3" (click)="getTimeOutDetail(row.id, detailModal);">Detay</button>
+                                <button class="btn btn-outline-warning" (click)="updateTimeOut(row.id, newTimeoutModal); editMode = true;">Düzenle</button>
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+            </div>
+        </div>
+    </div>
+</div>
+<!--New Location Modal-->
+<ng-template #newTimeoutModal let-modal>
+    <div *ngIf="editMode === false"  class="modal-header">
+      <h4 class="modal-title">Yeni Zaman Aşımı Ekle</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div *ngIf="editMode === true" class="modal-header">
+            <h4 class="modal-title">{{timeout.name}} - Zaman Aşımı Güncelle</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click');editMode = false;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+    <div class="modal-body">
+      <form [formGroup]="timeoutForm">
+          
+            <div class="form-group row">
+                    <label for="name" class=" col-md-3 col-form-label">Hedef Lokasyon</label>
+                    <div class="col-md-9">
+                            <select class="form-control" id="locationId" name="locationId" formControlName="locationId" [(ngModel)]="timeout.locationId">
+                                    <option value="" [disabled]="locations?.length <= 0"></option>
+                                    <option *ngFor="let location of locations" [ngValue]="location.id" [disabled]="locations?.length <= 0">{{location.name}}</option>
+                            </select>
+                            <app-field-error-display [displayError]="isFieldValidForms('locationId')" errorMsg="'Hedef Lokasyon' alanı boş geçilemez">
+                            </app-field-error-display>
+                    </div>
+            </div>
+            
+            <div class="form-group row">
+                    <label for="name" class=" col-md-3 col-form-label">Transfer Tipi</label>
+                    <div class="col-md-9">
+                            <select class="form-control" id="transTypeId" name="transTypeId" formControlName="transTypeId" [(ngModel)]="timeout.transTypeId">
+                                    <option value="" [disabled]="transTypes?.length <= 0"></option>
+                                    <option *ngFor="let transType of transTypes" [ngValue]="transType.id" [disabled]="transTypes?.length <= 0">{{transType.name}}</option>
+                            </select>
+                            <app-field-error-display [displayError]="isFieldValidForms('transTypeId')" errorMsg="'Transfer Tipi' alanı boş geçilemez">
+                            </app-field-error-display>
+                    </div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-3 col-form-label">Kategori</label>
+                    <div class="col-md-9">
+                            <select class="form-control" id="categoryId" name="categoryId" formControlName="categoryId" [(ngModel)]="timeout.categoryId">
+                                    <option value="" [disabled]="categories?.length <= 0"></option>
+                                    <option *ngFor="let category of categories" [ngValue]="category.id" [disabled]="categories?.length <= 0">{{category.name}}</option>
+                            </select>
+                            <app-field-error-display [displayError]="isFieldValidForms('categoryId')" errorMsg="'Kategori' alanı boş geçilemez">
+                            </app-field-error-display>
+                    </div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-3 col-form-label"> Gün Sayısı</label>
+                    <div class="col-md-2">
+                    <input type="number" class="form-control"  id="days" name="days" formControlName="days" [(ngModel)]="timeout.days">
+                    </div>
+                    <div class="col-md-7"></div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-3 col-form-label"> Zaman Aşım Rengi</label>
+                    <div class="col-md-9">
+                            <input [(colorPicker)]="colorAfterTimeout" [style.background]="colorAfterTimeout" [value]="colorAfterTimeout" (colorPickerChange)="onChangeColorTimeOut(colorAfterTimeout)" [(ngModel)]="timeout.colorAfterTimeout" formControlName="colorAfterTimeout"/>
+                   
+                    </div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-3 col-form-label"> Transfer Sonu Rengi</label>
+                    <div class="col-md-9">
+                            <input [(colorPicker)]="colorAfterTransfer" [style.background]="colorAfterTransfer" [value]="colorAfterTransfer" (colorPickerChange)="onChangeColorTransfer(colorAfterTransfer)"[(ngModel)]="timeout.colorAfterTransfer" formControlName="colorAfterTransfer"/>
+                    </div>
+            </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="save()">Kaydet</button>
+      <button type="button" class="btn btn-light" (click)="timeoutForm.reset();modal.dismiss('Close click'); editMode = false;">Kapat</button>
+    </div>
+</ng-template>
+<!--Location Detail Modal-->
+<ng-template #detailModal let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title">Zaman Aşımı Detayı</h4>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          
+              <div class="form-group row">
+                <div class="col-sm-3 font-weight-bold">Lokasyon Adı:</div>
+                <div class="col-sm-9">
+                    <p>{{timeoutDetail?.location?.name}}</p>
+                </div>
+              </div>
+              <div class="form-group row">
+                    <div class="col-sm-3 font-weight-bold">Transfer Tipi:</div>
+                    <div class="col-sm-9">
+                        <p>{{timeoutDetail?.transType?.name}}</p>
+                    </div>
+                  </div>
+                <div class="form-group row">
+                    <div class="col-sm-3 font-weight-bold">Kategori:</div>
+                    <div class="col-sm-9">
+                        <p>{{timeoutDetail?.category?.name}}</p>
+                    </div>
+                </div>
+                <div class="form-group row">
+                        <div class="col-sm-3 font-weight-bold">Gün Sayısı:</div>
+                        <div class="col-sm-9">
+                          <p>{{timeoutDetail?.days}}</p>
+                       </div>
+                </div>
+                <div class="form-group row" *ngIf="timeoutDetail?.colorAfterTimeout">
+                    <div class="col-sm-3 font-weight-bold">Zaman Aşım Rengi:</div>
+                    <div class="col-sm-2" [style.background-color]="timeoutDetail?.colorAfterTimeout">
+                      <p>{{timeoutDetail?.colorAfterTimeout}}</p>
+                   </div>
+                   <div class="col-md-7"></div>
+            </div>
+            <div class="form-group row" *ngIf="timeoutDetail?.colorAfterTransfer">
+                <div class="col-sm-3 font-weight-bold">Transfer Sonu Rengi:</div>
+                <div class="col-sm-2" [style.background-color]="timeoutDetail?.colorAfterTransfer">
+                  <p>{{timeoutDetail?.colorAfterTransfer}}</p>
+               </div>
+               <div class="col-md-7"></div>
+        </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger mr-auto" (click)="deleteTimeOut(timeoutDetail?.id, deleteConfirmModal);modal.close('Close click')">Zaman Aşımını Sil</button>
+          <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Kapat</button>
+        </div>
+    </ng-template>
+
+    <ng-template #deleteConfirmModal let-modal>
+            <div class="modal-header">
+                <h4 class="modal-title" id="modal-title">Zaman Aşımı Tanımını Sil</h4>
+                <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Zaman Aşımı Tanımını Silmek İstediğinize Emin Misiniz?</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" ngbAutofocus class="btn btn-wide btn-danger btn-rounded" (click)="modal.close('Ok')">Evet, Sil</button>
+                <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Hayır</button>
+                
+            </div>
+        </ng-template>

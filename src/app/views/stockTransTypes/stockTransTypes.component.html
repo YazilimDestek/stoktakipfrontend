@@ -1,0 +1,167 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Stok Transfer Tipleri</h1>
+        <ul>
+            <li><a href="">Stok Transfer Tipi Listesi</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    <div class="row mb-3">
+        <div class="col-md-12 mb-3">
+            <button class="btn btn-primary float-right" (click)="transferTypeForm.reset();addNewTransType(newTransTypeModal)">Yeni Transfer Tipi Ekle</button>
+        </div>
+        <div class="col-md-12">
+            <div class="card o-hidden">
+                <ngx-datatable *ngIf="transTypes?.length" style="box-shadow: none" class="material fullscreen" [style.height]="60*transTypes.length+60+'px'" [columnMode]="'force'"
+                    [headerHeight]="50" [footerHeight]="0" [rowHeight]="60"  [rows]="transTypes">
+                    <ngx-datatable-column name="photo" [maxWidth]="100">
+                        <ng-template ngx-datatable-header-template>
+                            ID
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.id}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Stok Transfer Tipi
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.name}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                            <ng-template ngx-datatable-header-template>
+                                Referans No
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.refCode}}
+                            </ng-template>
+                        </ngx-datatable-column>
+                    <ngx-datatable-column  [minWidth]="200">
+                        <ng-template ngx-datatable-header-template>
+                            İşlemler
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                <button class="btn btn-wide btn-outline-secondary mr-3" (click)="getDetail(row.id, detailModal);">Detay</button>
+                                <button class="btn btn-outline-warning" (click)="updateTransType(row.id, newTransTypeModal); editMode = true;">Düzenle</button>
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+            </div>
+        </div>
+    </div>
+</div>
+<!--New Transfer Type Modal-->
+<ng-template #newTransTypeModal let-modal>
+    <div  *ngIf="editMode == false" class="modal-header">
+      <h4 class="modal-title">Yeni Transfer Tipi Ekle</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div  *ngIf="editMode == true" class="modal-header">
+            <h4 class="modal-title">Transfer Tipi Güncelle</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+    <div class="modal-body">
+      <form [formGroup]="transferTypeForm">
+          
+            <div class="form-group row">
+                    <label for="name" class=" col-md-6 col-form-label">Stok Transfer Tipi</label>
+                    <div class="col-md-6">
+                    <input type="text" class="form-control" id="name" name="name" formControlName="name" [(ngModel)]="transferType.name" >
+                    <app-field-error-display [displayError]="isFieldValidForms('name')" errorMsg="'Stok Transfer Tipi' alanı boş geçilemez">
+                    </app-field-error-display>
+                </div>
+            </div>
+            
+            <div class="form-group row">
+                    <label for="name" class=" col-md-6 col-form-label">Referans No:</label>
+                    <div class="col-md-6">
+                    <input type="text" class="form-control" id="refCode" name="refCode" formControlName="refCode" [(ngModel)]="transferType.refCode" >
+                    </div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-6 col-form-label">Doküman Gerekli</label>
+                    <div class="col-md-6">
+                        <label class="switch switch-success mt-1">
+                                <input type="checkbox" class="form-control" id="documentRequired" name="documentRequired" formControlName="documentRequired" [(ngModel)]="transferType.documentRequired">
+                                    <span class="slider"></span>
+                                  </label>
+                    </div>
+            </div>
+             <div class="form-group row">
+                    <label for="name" class=" col-md-6 col-form-label">Mobil Uygulama Barkod Okutmada Kullanılabilsin</label>
+                    <div class="col-md-6">
+                        <label class="switch switch-success mt-1">
+                                <input type="checkbox" class="form-control" id="useForMobileBarcode" name="useForMobileBarcode" formControlName="useForMobileBarcode" [(ngModel)]="transferType.useForMobileBarcode">
+                                    <span class="slider"></span>
+                                  </label>
+                    </div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-6 col-form-label">Mobil Uygulama Karekod Okutmada Kullanılabilsin</label>
+                    <div class="col-md-6">
+                        <label class="switch switch-success mt-1">
+                                <input type="checkbox" class="form-control" id="useForMobileQrcode" name="useForMobileQrcode" formControlName="useForMobileQrcode" [(ngModel)]="transferType.useForMobileQrcode">
+                                    <span class="slider"></span>
+                                  </label>
+                    </div>
+            </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="save()">Kaydet</button>
+      <button type="button" class="btn btn-light" (click)="transferTypeForm.reset();modal.dismiss('Close click'); editMode = false;">Kapat</button>
+    </div>
+</ng-template>
+<!--Transfer Type Detail Modal-->
+<ng-template #detailModal let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title">Transfer Tipi Detayı</h4>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          
+              <div class="form-group row">
+                <div class="col-sm-3 font-weight-bold">Stok Transfer Tipi:</div>
+                <div class="col-sm-9">
+                    <p>{{transTypeDetail?.name}}</p>
+                </div>
+              </div>
+              <div class="form-group row">
+                    <div class="col-sm-3 font-weight-bold">Referans No:</div>
+                    <div class="col-sm-9">
+                        <p>{{transTypeDetail?.refCode}}</p>
+                    </div>
+                  </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger mr-auto" (click)="deleteTransType(transTypeDetail.id, deleteConfirmModal);modal.close('Close click')">Transfer Tipi Sil</button>
+          <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Kapat</button>
+        </div>
+    </ng-template>
+
+    <ng-template #deleteConfirmModal let-modal>
+            <div class="modal-header">
+                <h4 class="modal-title" id="modal-title">Transfer Tipi Sil</h4>
+                <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Transfer Tipini Silmek İstediğinize Emin Misiniz?</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" ngbAutofocus class="btn btn-wide btn-danger btn-rounded" (click)="modal.close('Ok')">Evet, Sil</button>
+                <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Hayır</button>
+                
+            </div>
+        </ng-template>

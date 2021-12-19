@@ -1,0 +1,215 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Ana Sayfa</h1>
+        <ul>
+            <li><a href="">Panel</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+
+    <div class="row">
+        <!-- ICON BG -->
+        <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                <div class="card-body text-center">
+                    <i class="i-Share"></i>
+                    <div class="content">
+                        <p class="text-muted mt-2 mb-0">Günlük Hareket</p>
+                        <p class="text-primary text-24 line-height-1 mb-2 ml-4">{{dashboardData?.totalStockMovementCount}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                    <div class="card-body text-center">
+                        <i class="i-Blinklist"></i>
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Bugün Takılan</p>
+                            <p class="text-primary text-24 line-height-1 mb-2 ml-4">{{dashboardData?.placementCount}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <div class="col-lg-3 col-md-6 col-sm-6" style="cursor:pointer">
+            <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4" (click)="showStockHistoryList = !showStockHistoryList">
+                <div class="card-body text-center">
+                    <i class="i-Over-Time-2"></i>
+                    <div class="content">
+                        <p class="text-muted mt-2 mb-0">Gecikmiş Hareket</p>
+                        <p class="text-primary text-24 line-height-1 mb-2 ml-4">{{dashboardData?.timeoutCount}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                <div class="card-body text-center">
+                    <i class="i-Posterous"></i>
+                    <div class="content">
+                        <p class="text-muted mt-2 mb-0">Bugün Sökülen</p>
+                        <p class="text-primary text-24 line-height-1 mb-2 ml-4">{{dashboardData?.rippingCount}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12" *ngIf="showStockHistoryList == true && timeoutItems.length > 0">
+            <div class="card mb-4">
+                    <h5 class="card-title m-0 p-3">
+                        <label>Gecikmiş Stok Hareketleri</label>
+                        <button class="btn btn-outline-secondary m-1 float-right" (click)="showStockHistoryList = false">x</button>
+                    </h5>
+                    
+                <div class="card-body p-0" *ngIf="timeoutItems.length > 0">
+                        <ngx-datatable  #myTable  
+                        style="box-shadow: none" 
+                        class="material" 
+                        [columnMode]="'force'"
+                        [headerHeight]="50" 
+                        [footerHeight]="0" 
+                        [rowHeight]="60"
+                        [scrollbarH]="true"
+                        [rows]="timeoutItems">
+                        <ngx-datatable-row-detail [rowHeight]="'auto'" #myDetailRow>
+                            <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
+                              
+                              <div class="row" >
+                                    <div class="col-md-2" style="padding-left: 35px">
+                                        <div><strong>Ürün Adı</strong></div>
+                                        <div>{{ row.item?.name }}</div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-left: 35px">
+                                        <div><strong>Ürün Tipi</strong></div>
+                                        <div>{{ row.item?.itemType?.name }}</div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-left: 35px">
+                                        <div><strong>Ürün Türü</strong></div>
+                                        <div>{{ row.item?.itemKind?.name }}</div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-left: 35px">
+                                                <div><strong>Varyantlı mı?</strong></div>
+                                                <div>{{ row.variantId == null ? 'Hayır' : 'Evet' }}</div>
+                                        
+                                                <div  *ngIf="row.variantId != null">
+                                                    <div><strong>Varyant</strong></div>
+                                                    <div  *ngFor="let val of row.variantParams">
+                                                        {{val.text}} : {{val.value}}
+                                                    </div>
+                                                </div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-left: 35px">
+                                            <div><strong>Kaç Adet?</strong></div>
+                                            <div>{{ row.qty }}</div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-left: 35px">
+                                        <div><strong>Ekleyen Kullanıcı</strong></div>
+                                        <div>{{ row.createdUserName }}</div>
+                                </div>
+                              </div>
+                            </ng-template>
+                        </ngx-datatable-row-detail>
+                        <ngx-datatable-column
+                                    [width]="70"
+                                    [resizeable]="false"
+                                    [sortable]="false"
+                                    [draggable]="false"
+                                    [canAutoResize]="false">
+                                    <ng-template ngx-datatable-header-template>
+                                        Detay
+                                    </ng-template>
+                                <ng-template let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
+                                    <a  
+                                        href="javascript:void(0)"
+                                        [class.datatable-icon-right]="!expanded"
+                                        [class.datatable-icon-down]="expanded"
+                                        title="Hareket Detayı İçin Tıklayınız"
+                                        (click)="toggleExpandRow(row)">
+                                    </a>
+                                </ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column [width]="50">
+                            <ng-template ngx-datatable-header-template>
+                                &nbsp;
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                <div style="height: 15px;
+                                width: 15px;
+                                border-radius: 50%;" [style.background-color]="row.colorAfterTimeout"></div>
+                            </ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column>
+                            <ng-template ngx-datatable-header-template>
+                                Son Hareket Tarihi
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.createdDateTime | date: 'dd/MM/yyyy H:mm'}}
+                            </ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column>
+                            <ng-template ngx-datatable-header-template>
+                                Başlangıç Lokasyonu
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.fromLocation}}
+                            </ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column>
+                            <ng-template ngx-datatable-header-template>
+                                Bitiş Lokasyonu
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.toLocation}}
+                            </ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column>
+                            <ng-template ngx-datatable-header-template>
+                                Transfer Tipi
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.transType}}
+                            </ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column>
+                                <ng-template ngx-datatable-header-template>
+                                    Kategori
+                                </ng-template>
+                                <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                    {{row.categoryName}}
+                                </ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column>
+                            <ng-template ngx-datatable-header-template>
+                                Marka
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.brand?.name}}
+                            </ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column >
+                                <ng-template ngx-datatable-header-template>
+                                    Seri No
+                                </ng-template>
+                                <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                    {{row.serialNumber}}
+                                </ng-template>
+                        </ngx-datatable-column>
+                    </ngx-datatable>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-body p-0">
+                    <h5 class="card-title m-0 p-3">Son 20 Günlük Hareketler</h5>
+                    <div echarts [options]="chartLineOption3"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

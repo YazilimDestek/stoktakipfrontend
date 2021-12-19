@@ -1,0 +1,56 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Rapor</h1>
+        <ul>
+            <li><a href="">stok</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    
+</div>
+<ng-template #newReportModal let-modal>
+    <div *ngIf="editMode === false" class="modal-header">
+      <h4 class="modal-title"></h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div *ngIf="editMode === true" class="modal-header">
+        <h4 class="modal-title">{{report.name}} - Rapor Güncelle</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    <div class="modal-body">
+      <form [formGroup]="reportForm">
+            <div class="form-group row">
+                    <label for="name" class=" col-md-2 col-form-label">Rapor Adı</label>
+                    <div class="col-md-8">
+                    <input type="text" class="form-control" id="name" name="name" formControlName="name" [(ngModel)]="report.name">
+                    </div>
+                    <div class="col-md-2"></div>
+            </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Kaydet</button>
+      <button type="button" class="btn btn-light" (click)="reportForm.reset();modal.dismiss('Close click');">Kapat</button>
+    </div>
+</ng-template>
+<ng-template #deleteConfirmModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-title">Rapor Sil</h4>
+        <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+            <p><strong>Raporu Silmek İstediğinize Emin Misiniz?</strong></p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" ngbAutofocus class="btn btn-wide btn-danger btn-rounded" (click)="modal.close('Ok')">Evet, Sil</button>
+        <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Hayır</button>
+        
+    </div>
+</ng-template>

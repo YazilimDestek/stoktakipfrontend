@@ -1,0 +1,88 @@
+<div class="breadcrumb">
+    <h1>Kullanıcı Bilgileri</h1>
+    <ul>
+        <li><a href="">Profil</a></li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="card">
+    <div class="card-body">
+                    <h4>Kişisel Bilgiler</h4>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <p class="text-primary mb-1"><i class="i-MaleFemale text-16 mr-1"></i> Adı Soyadı</p>
+                            <span>{{userData.name}} {{ userData.surname}}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="text-primary mb-1"><i class="i-MaleFemale text-16 mr-1"></i> Kullanıcı Adı</p>
+                            <span>{{userData.username}}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="text-primary mb-1"><i class="i-Email text-16 mr-1"></i> E-Posta</p>
+                            <span>{{userData.email}}</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <h4>Yetkiler</h4>
+                    <ul>
+                        <li *ngIf="userData.itemAdd">Ürün Ekleme</li>
+                        <li *ngIf="userData.itemEdit">Ürün Düzenleme</li>
+                        <li *ngIf="userData.itemDelete">Ürün Silme</li>
+                        <li *ngIf="userData.historyAdd">Stok Hareketi Ekleme</li>
+                        <li *ngIf="userData.historyEdit">Stok Hareketi Düzenleme</li>
+                        <li *ngIf="userData.historyDelete">Stok Hareketi Silme</li>
+                        <li *ngIf="userData.categoryAdd">Kategori Ekleme</li>
+                        <li *ngIf="userData.categoryAEdit">Kategori Düzenleme</li>
+                        <li *ngIf="userData.categoryDelete">Kategori Silme</li>
+                    </ul>
+                    <hr>
+                    <h4>Hesap Ayarları</h4>
+                    <button class="btn btn-primary" (click)="newPasswordForm.reset();openModal(passwordModal);">Şifre Değiştir</button>
+    </div>
+</div>
+<ng-template #passwordModal let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title">Şifre Değiştir</h4>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="newPasswordForm">
+                <div class="form-group row">
+                        <label for="name" class=" col-md-3 col-form-label">Yeni Şifre</label>
+                        <div class="col-md-7">
+                             <input type="password" class="form-control" id="password" name="password" formControlName="password" [(ngModel)]="password.password">
+                             <small *ngIf="!!password?.errors?.required && password?.touched " class="text-danger">
+                                Lütfen yeni şirenizi giriniz.
+                              </small>
+                              <small *ngIf="newPassword?.hasError('minlength')" class="text-danger">
+                                Şifre en az 6 karakter olmalıdır.
+                              </small>
+                              <app-field-error-display [displayError]="isFieldValidForms('password')" errorMsg="'Şifre' alanı boş geçilemez">
+                              </app-field-error-display>
+                        </div>
+                        <div class="col-md-2"></div>
+                </div>
+                <div class="form-group row">
+                        <label for="name" class=" col-md-3 col-form-label">Şifre Tekrarı</label>
+                        <div class=" col-md-7">
+                             <input type="password"  class="form-control" id="newPasswordAgain" name="newPasswordAgain" formControlName="newPasswordAgain" [(ngModel)]="password.newPasswordAgain">
+                             <small *ngIf="newPasswordForm?.invalid && !!newPasswordForm.errors?.matchPassword" class="text-danger">
+                                Yeni şifreler eşleşmedi.
+                              </small>
+                              <app-field-error-display [displayError]="isFieldValidForms('newPasswordAgain')" errorMsg="'Şifre Tekrarı' alanı boş geçilemez">
+                              </app-field-error-display>
+                        </div>
+                        <div class="col-md-2"></div>
+                </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-dark" (click)="changePassword()">Kaydet</button>
+          <button type="button" class="btn btn-light" (click)="newPasswordForm.reset();modal.dismiss('Close click');">Kapat</button>
+        </div>
+    </ng-template>

@@ -1,0 +1,120 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Lokasyon Tipleri</h1>
+        <ul>
+            <li><a href="">Lokasyon Tipleri Listesi</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    <div class="row mb-3">
+        <div class="col-md-12 mb-3">
+            <button class="btn btn-primary float-right" (click)="locationTypeForm.reset();addNewLocationType(newLocationTypeModal)">Yeni Lokasyon Tipi Ekle</button>
+        </div>
+        <div class="col-md-12">
+            <div class="card o-hidden">
+                <ngx-datatable *ngIf="locationTypes?.length" style="box-shadow: none" class="material fullscreen" [style.height]="60*locationTypes.length+60+'px'" [columnMode]="'force'"
+                    [headerHeight]="50" [footerHeight]="0" [rowHeight]="60"  [rows]="locationTypes">
+                    <ngx-datatable-column name="photo" [maxWidth]="100">
+                        <ng-template ngx-datatable-header-template>
+                            ID
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.id}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Lokasyon Tipi Adı
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.name}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column  [minWidth]="200">
+                        <ng-template ngx-datatable-header-template>
+                            İşlemler
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                <button class="btn btn-wide btn-outline-secondary mr-3" (click)="getDetail(row.id, detailModal);">Detay</button>
+                                <button class="btn btn-outline-warning" (click)="updateLocationType(row.id, newLocationTypeModal); editMode = true;">Düzenle</button>
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+            </div>
+        </div>
+    </div>
+</div>
+<!--New Brand Modal-->
+<ng-template #newLocationTypeModal let-modal>
+    <div *ngIf="editMode === false"  class="modal-header">
+      <h4 class="modal-title">Yeni Lokasyon Tipi Ekle</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div *ngIf="editMode === true" class="modal-header">
+            <h4 class="modal-title">{{locationType.name}} - Lokasyon Tipi Güncelle</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click');editMode = false;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+    <div class="modal-body">
+      <form [formGroup]="locationTypeForm">
+          
+            <div class="form-group row">
+                    <label for="name" class=" col-md-2 col-form-label">Lokasyon Tipi Adı</label>
+                    <div class="col-md-8">
+                    <input type="text" class="form-control" id="name" name="name" formControlName="name" [(ngModel)]="locationType.name">
+                    <app-field-error-display [displayError]="isFieldValidForms('name')" errorMsg="'Lokasyon Tipi Adı' alanı boş geçilemez">
+                    </app-field-error-display>
+                    </div>
+                    <div class="col-md-2"></div>
+            </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="save()">Kaydet</button>
+      <button type="button" class="btn btn-light" (click)="locationTypeForm.reset();modal.dismiss('Close click'); editMode = false;">Kapat</button>
+    </div>
+</ng-template>
+<!--brand Detail Modal-->
+<ng-template #detailModal let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title">Lokasyon Tip Detayı</h4>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          
+              <div class="form-group row">
+                <div class="col-sm-3 font-weight-bold">Lokasyon Tip Adı:</div>
+                <div class="col-sm-9">
+                    <p>{{locationTypeDetail?.name}}</p>
+                </div>
+              </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger mr-auto" (click)="deleteLocationType(locationTypeDetail.id, deleteConfirmModal);modal.close('Close click')">Lokasyon Tipi Sil</button>
+          <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Kapat</button>
+        </div>
+    </ng-template>
+
+    <ng-template #deleteConfirmModal let-modal>
+            <div class="modal-header">
+                <h4 class="modal-title" id="modal-title">Lokasyon Tipi Sil</h4>
+                <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Lokasyon Tipi Silmek İstediğinize Emin Misiniz?</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" ngbAutofocus class="btn btn-wide btn-danger btn-rounded" (click)="modal.close('Ok')">Evet, Sil</button>
+                <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Hayır</button>
+                
+            </div>
+        </ng-template>

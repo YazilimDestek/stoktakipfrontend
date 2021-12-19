@@ -1,0 +1,46 @@
+export class CategoriesDB {
+    static categories = [
+        {
+            id: '3',
+            topCategoryName:'Sayaç',
+            name:'G4',
+            minStock:'50',
+            maxStock:'500',
+            currentStock:'400',
+            levelId:'1',
+            levelText:'STOK YETERLİ',
+            description:' Açıklama',
+            minStockWarningColor : '#ffff8a',
+            maxStockWarningColor : '#07c22d',
+            outOfStockWarningColor : '#ff2500',
+        },
+        {
+            id: '4',
+            topCategoryName:'Regülator',
+            name:'B25N',
+            minStock:'50',
+            maxStock:'1500',
+            currentStock:'45',
+            levelId:'2',
+            levelText:'STOK AZALDI',
+            description:'Açıklama',
+            minStockWarningColor : '#ffff8a',
+            maxStockWarningColor : '#07c22d',
+            outOfStockWarningColor : '#ff2500',
+        },
+        {
+            id: '5',
+            topCategoryName:'Modül',
+            name:'U10',
+            minStock:'150',
+            maxStock:'2500',
+            currentStock:'0',
+            levelId:'2',
+            levelText:'STOK YOK',
+            description:'Açıklama',
+            minStockWarningColor : '#ffff8a',
+            maxStockWarningColor : '#07c22d',
+            outOfStockWarningColor : '#ff2500',
+        }
+    ]
+}

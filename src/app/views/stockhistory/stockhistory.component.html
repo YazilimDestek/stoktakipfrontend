@@ -1,0 +1,572 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Stok Hareketleri</h1>
+        <ul>
+            <li><a href="">Hareket Listesi</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    <div class="row mb-3">
+            <div class="col-md-12 mb-3">
+                    <button class="btn btn-primary" (click)="filterOpen = !filterOpen;">Filtrele</button>
+                    <button class="btn btn-primary float-right" *ngIf="userData.historyAdd" (click)="reset();stockForm.reset();addStockTransfer(newTransferModal)">Stok Hareketi Ekle</button>
+                </div>
+                <div class="col-md-12 mb-1" *ngIf="filterOpen == true">
+                    <div class="card">
+                        <div class="card-body">
+                                        <div class="form-group row">
+                                            <div class="col-md-2 pr-1 pl-0">
+                                                <label>Barkod</label>
+                                                <input type="text" class="form-control"  [(ngModel)] ="filter.barcode">
+                                            </div>
+                                            <div class="col-md-2 pr-1 pl-0">
+                                                <label>Kaynak Depo</label>
+                                                <select class="form-control"  [(ngModel)] ="filter.fromLocationId">
+                                                        <option value="" [disabled]="locations?.length <= 0"></option>
+                                                        <option *ngFor="let location of locations" [ngValue]="location.id" [disabled]="locations?.length <= 0">{{location.name}} ({{location.company?.name}})</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2 pr-1 pl-0">
+                                                    <label>Hedef Depo</label>
+                                                    <select class="form-control"  [(ngModel)] ="filter.toLocationId">
+                                                            <option value="" [disabled]="locations?.length <= 0"></option>
+                                                            <option *ngFor="let location of locations" [ngValue]="location.id" [disabled]="locations?.length <= 0">{{location.name}} ({{location.company?.name}})</option>
+                                                    </select>
+                                            </div>
+                                            <div class="col-md-2 pr-1 pl-0">
+                                                    <label>Hareket Tipi</label>
+                                                    <select class="form-control"  [(ngModel)] ="filter.transTypeId">
+                                                            <option value="" [disabled]="transTypes?.length <= 0"></option>
+                                                            <option *ngFor="let transType of transTypes" [ngValue]="transType.id" [disabled]="transTypes?.length <= 0">{{transType.name}}</option>
+                                                    </select>
+                                            </div>
+                                            <div class="col-md-2 pr-1 pl-0">
+                                                    <label for="picker1">Başlangıç Tarihi</label>
+                                                    <div class="input-group">
+                                                        <input  id="picker1" class="form-control text-right" [(ngModel)] ="filter.stockStartDate"
+                                                            placeholder="yyyy-mm-dd" name="dp" ngbDatepicker #stockStartDatePicker="ngbDatepicker">
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-secondary" (click)="stockStartDatePicker.toggle()" type="button">
+                                                                <i class="icon-regular i-Calendar-4"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                            <div class="col-md-2 pr-1 pl-0">
+                                                    <label for="picker1">Bitiş Tarihi</label>
+                                                    <div class="input-group">
+                                                        <input  id="picker1" class="form-control text-right" [(ngModel)] ="filter.stockEndDate"
+                                                            placeholder="yyyy-mm-dd" name="dp" ngbDatepicker #stockEndDatePicker="ngbDatepicker">
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-secondary" (click)="stockEndDatePicker.toggle()" type="button">
+                                                                <i class="icon-regular i-Calendar-4"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                                <div class="col-md-12 pr-0">
+                                                        <button type="button" class="btn btn-primary float-right mr-1" (click)="filterStockHistory();">Filtrele</button>
+                                                </div>
+                                        </div>
+                                   
+                        </div>
+                        
+                        </div>
+                    </div>
+        <div class="col-md-12">
+            <div class="card o-hidden" *ngIf="stockHistories?.length">
+                <ngx-datatable   
+                            #table style="box-shadow: none" 
+                            class="material" 
+                            [columnMode]="'force'"
+                            [headerHeight]="50" 
+                            [footerHeight]="0"  
+                            [scrollbarH]="true" 
+                            [rowHeight]="'auto'" 
+                            [rows]="stockHistories" 
+                            [sorts]="[{prop: 'name', dir: 'desc'}]">
+                    <ngx-datatable-column name="ID" [maxWidth]="100">
+                        <ng-template ngx-datatable-cell-template let-row="row">
+                            {{row.id}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Hareket Tarihi" prop="createdDateTime">
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.createdDateTime | date: 'dd/MM/yyyy'}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Marka" prop="brandName">
+                    <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                        {{row.item?.brand?.name}}
+                    </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Seri No" prop="serialNumber">
+                    <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                        {{row.serialNumber}}
+                    </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Ürün Barkodu" prop="barcode">
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.barcode}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column  name="Kategori" prop="categoryName">
+                        <ng-template ngx-datatable-cell-template  let-row="row" let-rowIndex="rowIndex">
+                            {{row.categoryName}}     
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <div *ngIf="itemRequiredFieldTitles?.length > 0">
+                            <div *ngFor="let  field of itemRequiredFieldTitles" >
+                                    <ngx-datatable-column name="(Tanım) {{field}}" prop="itemRequiredFields">
+                                        <ng-template ngx-datatable-cell-template  let-row="row" let-rowIndex="rowIndex">
+                                                <ng-container *ngFor="let c of row.itemRequiredFields | filter : field">
+                                                        {{c.value}}
+                                                    </ng-container>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                </div>
+                    </div>
+                    <div *ngIf="titles?.length > 0">
+                            <div *ngFor="let val of titles" >
+                                    <ngx-datatable-column name="(Hareket) {{val}}" prop="requiredFields">
+                                        <ng-template ngx-datatable-cell-template  let-row="row" let-rowIndex="rowIndex">
+                                                <ng-container *ngFor="let c of row.requiredFields | filter : val">
+                                                        {{c.value}}
+                                                    </ng-container>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                            </div>
+                    </div>
+                    <ngx-datatable-column name="Kaynak Depo" prop="fromLocation">
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.fromLocation}}
+                        </ng-template>
+                    </ngx-datatable-column>
+
+                    <ngx-datatable-column name="Hedef Depo" prop="toLocation">
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.toLocation}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Hareket Tipi" prop="transType">
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.transType}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column [minWidth]="200">
+                        <ng-template ngx-datatable-header-template>
+                            İşlemler
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            <button class="btn btn-wide btn-outline-secondary" (click)="getDetail(row.id, detailModal)">Detay</button>
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+                <div class="card-footer">
+                    <div class="row">
+                        <div *ngIf="totalCount">Toplam {{totalCount}} Adet Ürün</div>
+                        <div style="margin-left:auto; margin-right:0;">
+                            Sayfa : <strong>{{currentPage}}</strong>/<strong>{{totalPages}}</strong>
+                          </div>
+                                  <div (click)="currentPage = currentPage - 1; filter.page = filter.page - 1; LoadData(filter);"  style="cursor: pointer;margin-left:15px; margin-right:0;" *ngIf="currentPage > 1 && totalCount > pageSize">
+                                       Önceki Sayfa
+                                    </div>
+                                    <div (click)="currentPage = currentPage + 1; filter.page = filter.page + 1; LoadData(filter);"  style="cursor: pointer;margin-left:15px; margin-right:0;" *ngIf="isLastPage == false">
+                                      Sonraki Sayfa
+                                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Add New Stock Transfer Modal-->
+<ng-template #newTransferModal let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title">Stok Hareketi Ekle</h4>
+          <button type="button" class="close" aria-label="Close" (click)="stockForm.reset();modal.dismiss('Cross click');">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+       
+        <div class="modal-body">
+          <form [formGroup]="stockForm">
+                <div class="form-group row">
+                    <label class="col-md-3 col-form-label pt-4">Stok Seç<i style="color: #cc0000">*</i></label>
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-group row">
+                                    <div class="col-md-6  pr-1">
+                                            <label>Barkod</label>
+                                            <input class="form-control" type="text" [(ngModel)]="search.barcode" [ngModelOptions]="{standalone: true}">
+                                    </div>
+                                    <div class="col-md-6 pl-0">
+                                            <label>Ürün Adı</label>
+                                            <input class="form-control" type="text"  [(ngModel)]="search.name" [ngModelOptions]="{standalone: true}">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                        <div class="col-md-6 pr-1">
+                                            <label>Marka</label>
+                                            <select class="form-control"  name="brandId" [(ngModel)]="search.brandId" [ngModelOptions]="{standalone: true}">
+                                                    <option value="" [disabled]="brands?.length <= 0"></option>
+                                                    <option *ngFor="let brand of brands" [ngValue]="brand.id" [disabled]="brands?.length <= 0">{{brand.name}}</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 pl-0">
+                                            <label>Seri Numara</label>
+                                                <input class="form-control" [(ngModel)]="search.serialNumber" type="text" [ngModelOptions]="{standalone: true}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row mb-1">
+                                        <div class="col-md-12">
+                                                <button type="button" class="btn btn-success float-right" (click)="searchItem();">Ara</button>
+                                        </div>
+                                    </div>
+                                    <!--<div class="form-group row mb-1" *ngIf="resultList.length == 0 && viewMode == true">
+                                        <div class="col-md-12">
+                                            <label>Ürün Bulunamadı</label>
+                                        </div>
+                                    </div>-->
+                                    <div class="form-group row" *ngIf="resultList?.length > 0">
+                                        <div class="col-md-12">
+                                                <div class="card  o-hidden">
+                                                    <ngx-datatable #table
+                                                    style="height: 500px; box-shadow: none"
+                                                    class="material fullscreen"
+                                                    [columnMode]="'force'"
+                                                    [headerHeight]="50"
+                                                    [footerHeight]="50"
+                                                    [rowHeight]="60"
+                                                    [scrollbarV]="true"
+                                                    [rows]="resultList"
+                                                    [selected]="selectedItem"
+                                                    [messages]="messages"
+                                                    selectionType="single"
+                                                    (select)="onSelectItem($event)">
+                                                    <ngx-datatable-column name="brandName">
+                                                                <ng-template ngx-datatable-header-template>
+                                                                  Marka
+                                                                </ng-template>
+                                                          </ngx-datatable-column>
+                                                          <ngx-datatable-column name="serialNumber">
+                                                            <ng-template ngx-datatable-header-template>
+                                                              Seri No.
+                                                            </ng-template>
+                                                          </ngx-datatable-column>
+                                                      <ngx-datatable-column>
+                                                        <ng-template ngx-datatable-header-template>
+                                                          Ürün Adı
+                                                        </ng-template>
+                                                        <ng-template ngx-datatable-cell-template  let-row="row">
+                                                                {{row.name}}
+                                                            </ng-template>
+                                                      </ngx-datatable-column>
+                                                      <ngx-datatable-column name="categoryName">
+                                                        <ng-template ngx-datatable-header-template>
+                                                          Kategori
+                                                        </ng-template>
+                                                      </ngx-datatable-column>
+                                                  </ngx-datatable>
+                                                </div>
+                                            </div>
+                                    </div>
+                                    <div class="form-group row" *ngIf="selectedItemVariantsList?.length > 0">
+                                            <div class="col-md-12">
+                                                <div class="card-header">Varyant Seçiniz</div>
+                                                    <div class="card  o-hidden">
+                                                        <ngx-datatable #table
+                                                        style="height: 500px; box-shadow: none"
+                                                        class="material fullscreen"
+                                                        [columnMode]="'force'"
+                                                        [headerHeight]="50"
+                                                        [footerHeight]="50"
+                                                        [rowHeight]="60"
+                                                        [scrollbarV]="true"
+                                                        [rows]="selectedItemVariantsList"
+                                                        [selected]="selectedVariant"
+                                                        selectionType="single"
+                                                        [messages]="messages"
+                                                        (select)="onSelectItemVariant($event)">
+                                                          <ngx-datatable-column>
+                                                            <ng-template ngx-datatable-header-template>
+                                                              Barkod
+                                                            </ng-template>
+                                                            <ng-template ngx-datatable-cell-template  let-row="row">
+                                                                    {{row.barcode}}
+                                                                </ng-template>
+                                                          </ngx-datatable-column>
+                                                          <ngx-datatable-column>
+                                                                <ng-template ngx-datatable-header-template>
+                                                                  Varyant
+                                                                </ng-template>
+                                                                <ng-template ngx-datatable-cell-template  let-row="row" let-rowIndex="rowIndex">
+                                                                        <ng-container *ngFor="let val of row.variantParams">
+                                                                            {{val.text}}: {{val.value}}
+                                                                        </ng-container>
+                                                                    </ng-template>
+                                                              </ngx-datatable-column>
+                                                      </ngx-datatable>
+                                                    </div>
+                                                </div>
+                                        </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class=" form-group row" *ngIf="selectedItemDetail && showStockCard == true">
+                    <label for="name" class="col-md-3 col-form-label">Seçili Stok Kartı</label>
+                    <div class="col-md-9">
+                    <div class="card">
+                        <div class="card-body">
+                         <div class="row">
+                                <div class="col-md-4">Marka :</div>
+                                <div class="col-md-8">{{selectedItemDetail?.brand?.name}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">Seri No :</div>
+                                <div class="col-md-8">{{selectedItemDetail?.serialNumber}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">Adı :</div>
+                                <div class="col-md-8">{{selectedItemDetail?.name}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">Tekil ürün mü? :</div>
+                                <div class="col-md-8">{{selectedItemDetail.isSingular == true ? "Evet" : "Hayır"}}
+                            </div>
+                            </div>
+                            <div class="row" *ngIf="selectedItemDetail.isUsingVariants == false">
+                                    <div class="col-md-4">Barkodu :</div>
+                                    <div class="col-md-8">{{selectedItemDetail?.barcode}}</div>
+                            </div>
+                                <div class="row" *ngIf="selectedItemDetail.isUsingVariants == true">
+                                        <div class="col-md-4">Varyant :</div>
+                                        <div class="col-md-8">
+                                            <div class="row pl-3">
+                                                 Barkod : {{selectedItemVariantDetail?.barcode}}
+                                            </div>
+                                            <div class="row pl-3" *ngFor=" let val of selectedItemVariantDetail?.variantParams">
+                                                    {{val.text }} : {{val.value}}
+                                                </div>
+                                        </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="form-group row" *ngIf="catMandatoryFields.length > 0">
+                        <label class="col-md-3 col-form-label">Kategori Ek Alanları</label>
+                        <div class="col-md-9">
+                            <div class="card">
+                                <div class="card-body">
+                                        <div *ngFor="let field of catMandatoryFields">
+                                                <div class=" form-group row">
+                                                <label class="col-md-4">{{field.name}}</label>
+                                                <div class="col-md-4" *ngIf="field.valueType == 'int'">
+                                                    <input type="number" min="0" class="form-control" [(ngModel)]="field.value" [ngModelOptions]="{standalone: true}"  placeholder="Değer Giriniz" ></div>
+                                                <div class="col-md-4" *ngIf="field.valueType == 'decimal'">
+                                                    <input type="number" min="0" step=".01" class="form-control" [(ngModel)]="field.value" [ngModelOptions]="{standalone: true}" placeholder="Değer Giriniz" ></div>
+                                                <div class="col-md-4" *ngIf="field.valueType == 'bool'" >
+                                                    <label class="switch switch-success">
+                                                        <input type="checkbox" class="form-control" [(ngModel)]="field.value" [ngModelOptions]="{standalone: true}" >
+                                                            <span class="slider"></span>
+                                                        </label>
+                                                </div>
+                                                <div class="col-md-4" *ngIf="field.valueType == 'text'">
+                                                    <input type="text"  class="form-control" [(ngModel)]="field.value" [ngModelOptions]="{standalone: true}" placeholder="Değer Giriniz" ></div>
+                                                <div class="col-md-4"></div>
+                                                </div>
+                                            </div>
+                                </div>
+                            </div>
+                            <!--<div class="col-md-4"><button class="btn btn-primary" (click)="showCat();">Göster</button></div>-->
+                        </div>
+                </div>
+                <div class="form-group row">
+                        <label for="name" class=" col-md-3 col-form-label">Kaynak Depo</label>
+                        <div class="col-md-9 form-group mb-3">
+                                <select class="form-control" id="fromLocationId" name="fromLocationId" formControlName="fromLocationId" [(ngModel)]="stock.fromLocationId">
+                                        <option value="" [disabled]="locations?.length <= 0"></option>
+                                        <option *ngFor="let location of locations" [ngValue]="location.id" [disabled]="locations?.length <= 0">{{location.name}} ({{location.company?.name}})</option>
+                                </select>
+                            </div>
+                </div>
+                <div class="form-group row" *ngIf="selectedItemDetail?.isSingular == false">
+                    <label for="name" class=" col-md-3 col-form-label">Adet</label>
+                    <div class="col-md-9 form-group mb-3">
+                        <input class="form-control" [(ngModel)]="stock.qty" type="number" formControlName="qty">
+                        </div>
+                </div>
+                <div class="form-group row">
+                        <label for="name" class=" col-md-3 col-form-label">Hedef Depo<i style="color: #cc0000">*</i></label>
+                        <div class="col-md-9 form-group mb-3">
+                                <select class="form-control" id="locationId" name="locationId" formControlName="locationId" [(ngModel)]="stock.locationId">
+                                        <option value="" [disabled]="locations?.length <= 0"></option>
+                                        <option *ngFor="let location of locations" [ngValue]="location.id" [disabled]="locations?.length <= 0">{{location.name}} ({{location.company?.name}})</option>
+                                </select>
+                                <small *ngIf="!!stockForm?.controls.locationId.touched && !stockForm.controls.locationId.valid" class="text-danger">
+                                    Hedef Depo zorunludur
+                                </small>
+                            </div>
+                </div>
+                
+                <div class="form-group row">
+                        <label for="name" class=" col-md-3 col-form-label">Hareket Tipi<i style="color: #cc0000">*</i></label>
+                        <div class="col-md-9 form-group mb-3">
+                                <select class="form-control" id="transTypeId" name="transTypeId" formControlName="transTypeId" [(ngModel)]="stock.transTypeId" 
+                                (change)="getValueDocumentRequired(stock.transTypeId);">
+                                        <option value="" [disabled]="transTypes?.length <= 0"></option>
+                                        <option *ngFor="let transType of transTypes" [ngValue]="transType.id" [disabled]="transTypes?.length <= 0">{{transType.name}}</option>
+                                </select>
+                                <small *ngIf="!!stockForm?.controls.transTypeId.touched && !stockForm.controls.transTypeId.valid" class="text-danger">
+                                    Hareket Tipi zorunludur
+                                </small>
+                            </div>
+                </div>
+                <div class="form-group row" *ngIf="url">
+                    <label for="name" class=" col-md-3 col-form-label"></label>
+                    <div class="col-md-9">
+                        <div>
+                            <img style="max-width:180px;" alt="&nbsp;" class="thumbnail-image" [src]="url">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="name" class=" col-md-3 col-form-label">Evrak Fotoğrafı</label>
+                    <div class="input-group col-md-9">
+                        <div class="custom-file">
+                            <input type="file"  id="inputGroupFile01" (change)="readUrl($event)"  style="display: none;">
+                            <label for="inputGroupFile01" style="border: 1px solid #ced4da;border-radius:5px; display: inline-block; padding: 6px 12px; cursor: pointer;background: #f8f9fa">Fotoğraf Seçiniz</label>
+                        </div>
+                    </div>
+             </div>
+          </form>
+          <br>
+        </div>
+        <div class="modal-footer">
+          <div *ngIf="this.serialNumber == '' || !stockForm.valid">Kaydetmeden önce stok kartı seçiniz</div>
+          <button type="button" class="btn btn-outline-dark" [disabled]="this.serialNumber == '' || !stockForm.valid" (click)="save()">Kaydet</button>
+          <button type="button" class="btn btn-light" (click)="stockForm.reset();modal.dismiss('Close click');">İptal</button>
+        </div>
+    </ng-template>
+    <!--Stock Transfer Detail Modal-->
+    <ng-template #detailModal let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title">Hareket Detayı</h4>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" style="word-wrap: break-word;">
+                    <div class="form-group row">
+                            <div class="col-md-4 font-weight-bold">Barkod:</div>
+                            <div class="col-md-8">
+                                <p>{{stockTransferDetail?.barcode}}</p>
+                            </div>
+                          </div>
+                            <div class="form-group row">
+                                <div class="col-md-4 font-weight-bold">Kaynak Depo:</div>
+                                <div class="col-md-8">
+                                    <p>{{stockTransferDetail?.fromLocation}} - {{stockTransferDetail.fromLocation}}</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                    <div class="col-md-4 font-weight-bold">Hedef Depo:</div>
+                                    <div class="col-md-8">
+                                      <p>{{stockTransferDetail?.toLocation}}</p>
+                                   </div>
+                            </div>
+                            <div class="form-group row">
+                                    <div class="col-md-4 font-weight-bold">Hareket Tipi:</div>
+                                    <div class="col-md-8">
+                                      <p>{{stockTransferDetail?.transType}}</p>
+                                   </div>
+                            </div>
+                            <div class="form-group row" *ngIf="stockTransferDetail?.documentPath">
+                                    <div class="col-md-4 font-weight-bold">Evrak Fotoğrafı:</div>
+                                    <div class="col-md-8" (click)="expandImage(imageModal)" style="cursor: pointer;">
+                                            <img [src]="'http://78.187.176.183:9000/Files/images/' + stockTransferDetail.documentPath" style="max-width:180px;" alt="&nbsp;" class="thumbnail-image" >
+                                   </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-7">
+                                    <div class="card">
+                                        <div class="card-header">Hareketi Ekleyen Kullanıcı</div>
+                                        <div class="card-body">
+                                            <div class="form-group row">
+                                                <div class="col-md-6">Adı Soyadı:</div>
+                                                <div class="col-md-6">{{stockTransferDetail?.createdUserName}}</div>
+                                            </div>
+                                            <div class="form-group row">
+                                                    <div class="col-md-6">Ekleme Tarihi:</div>
+                                                    <div class="col-md-6">{{stockTransferDetail?.createdDateTime | date: 'dd/MM/yyyy H:mm'}}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header"> Hareketi Gerçekleşmiş Ürün Detayı</div>
+                                <div class="card-body">
+                                    <div class="form-group row">
+                                        <div class="col-md-4">Barkodu:</div>
+                                        <div class="col-md-8">{{stockTransferDetail?.barcode}}</div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">Seri No:</div>
+                                        <div class="col-md-8">{{stockTransferDetail?.serialNumber}}</div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">Marka:</div>
+                                        <div class="col-md-8">{{stockTransferDetail?.brandName}}</div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">Kategori:</div>
+                                        <div class="col-md-8">{{stockTransferDetail?.categoryName}}</div>
+                                    </div>
+                                    <div class="form-group row" *ngIf="stockTransferDetail?.requiredFields">
+                                        <div class="col-md-4">Kategori Ek Alanları:</div>
+                                        <div class="col-md-8">
+                                                <div  *ngFor="let field of stockTransferDetail?.requiredFields">
+                                                    <div class="row pl-3">{{field.name}} : {{field.value}}</div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">Varyantlı Ürün? :</div>
+                                        <div class="col-md-8" *ngIf="stockTransferDetail?.variantId == null"> Hayır</div>
+                                        <div class="col-md-8" *ngIf="stockTransferDetail?.variantId != null"> Evet
+                                                <div  *ngFor="let variant of stockTransferDetail?.variantParams">
+                                                        <div class="row pl-3">{{variant.text}} : {{variant.value}}</div>
+                                                    </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Kapat</button>
+        </div>
+    </ng-template>
+    <ng-template #imageModal let-modal >
+       
+        <div  style="display: flex; flex-wrap: wrap; ">
+
+                <img [src]="'http://servis.entray.com/Files/images/' + stockTransferDetail.documentPath" style="flex: 1; width: 100%; height: auto;">
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-light" (click)="modal.close('Close click')">X</button>
+          </div>
+    </ng-template>

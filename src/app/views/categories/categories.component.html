@@ -1,0 +1,382 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Kategoriler</h1>
+        <ul>
+            <li><a href="">Kategori Listesi</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    <div class="row mb-3">
+        <div class="col-md-12 mb-3">
+            <button class="btn btn-primary float-right" *ngIf="userData.categoryAdd" (click)="addNewCategory(newCategoryModal)">Yeni Kategori Ekle</button>
+        </div>
+        <div class="col-md-12">
+            <div class="card o-hidden">
+                <ngx-datatable *ngIf="categories?.length" style="box-shadow: none" class="material fullscreen" [style.height]="60*categories.length+60+'px'" [columnMode]="'force'"
+                    [headerHeight]="50" [footerHeight]="0"  [scrollbarH]="true" [rowHeight]="60" [rows]="categories">
+                    <ngx-datatable-column name="photo" [maxWidth]="100">
+                        <ng-template ngx-datatable-header-template>
+                            ID
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.id}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Üst Kategori
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.topCategoryName}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Kategori
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.name}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Mevcut Stok
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.currentStock}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Stok Durumu
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            <div class="badge" style="font-size:10px" [ngClass]="{
+                                'badge-primary': row.currentStatus === 'STOK FAZLA',
+                                'badge-success': row.currentStatus === 'STOK YETERLİ',
+                                'badge-warning': row.currentStatus === 'STOK AZALDI',
+                                'badge-danger': row.currentStatus === 'STOK YOK'
+                            }">
+                                {{row.currentStatus}}
+                        </div>
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column [minWidth]="200">
+                        <ng-template ngx-datatable-header-template>
+                            İşlemler
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                <button class="btn btn-wide btn-outline-secondary mr-3" (click)="getDetail(row.id, detailModal);">Detay</button>
+                            <button class="btn btn-outline-warning" *ngIf="userData.categoryAEdit" (click)="updateCategory(row.id,newCategoryModal);editMode = true;">Düzenle</button>
+                            <!--<button class="btn btn-outline-danger mr-3" (click)="deleteCategory(row.id,deleteConfirmModal);">Sil</button>-->
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-template #newCategoryModal let-modal>
+    <div *ngIf="editMode === false" class="modal-header">
+      <h4 class="modal-title">Yeni Kategori Ekle</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div *ngIf="editMode === true" class="modal-header">
+        <h4 class="modal-title">{{category.name}} - Kategori Güncelle</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    <div class="modal-body">
+      <form [formGroup]="categoryForm">
+            <div class="form-group row">
+                    <label for="name" class=" col-md-2 col-form-label">Üst Kategori</label>
+                    <div class="col-md-10">
+                    
+                    <select class="form-control" id="topCategoryId" name="topCategoryId" formControlName="topCategoryId" [(ngModel)]="category.topCategoryId">
+                        <option *ngFor="let item of categories" [ngValue]="item.id">{{item.name}}</option>
+                    </select>
+                    </div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-2 col-form-label">Kategori</label>
+                    <div class="col-md-10">
+                    <input type="text" class="form-control" id="name" name="name" formControlName="name" [(ngModel)]="category.name">
+                    <app-field-error-display [displayError]="isFieldValidForms('name')" errorMsg="'Kategori' alanı boş geçilemez">
+                    </app-field-error-display>
+                    </div>
+            </div>
+            <div class="form-group row mb-0">
+                <label for="name" class="col-md-2 col-form-label"><span ngbTooltip="Bu kategoride İlk Giren İlk Çıkar Yöntemini kullanmak istiyorsanız bu ayarı açık tutunuz." placement="bottom"
+                    >FIFO<i class="i-Idea-2"></i></span></label>
+                <div class=" col-md-10 mt-1">
+                        <label class="switch switch-success">
+                                <input type="checkbox" class="form-control" id="isFifo" name="isFifo" formControlName="isFifo" [(ngModel)]="category.isFifo">
+                                    <span class="slider"></span>
+                        </label>
+                </div>
+        </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-2 col-form-label">Minimum Stok</label>
+                    <div class=" col-md-10">
+                        <input type="number" min="0" class="form-control" id="minStockCount" name="minStockCount" formControlName="minStockCount" [(ngModel)]="category.minStockCount">
+                        <app-field-error-display [displayError]="isFieldValidForms('minStockCount')" errorMsg="'Minimum Stok' alanı boş geçilemez">
+                        </app-field-error-display>
+                    </div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-2 col-form-label">Maksimum Stok</label>
+                    <div class=" col-md-10">
+                        <input type="number" min="0" class="form-control" id="maxStockCount" name="maxStockCount" formControlName="maxStockCount" [(ngModel)]="category.maxStockCount">
+                        <app-field-error-display [displayError]="isFieldValidForms('maxStockCount')" errorMsg="'Maksimum Stok' alanı boş geçilemez">
+                        </app-field-error-display>
+                    </div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-2 col-form-label">ABYS Tip Kodu</label>
+                    <div class=" col-md-10">
+                        <input type="number" min="0" class="form-control" id="abysTypeCode" name="abysTypeCode" formControlName="abysTypeCode" [(ngModel)]="category.abysTypeCode">
+                        </div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-2 col-form-label">Açıklama</label>
+                    <div class=" col-md-10">
+                        <input type="text" class="form-control" id="description" name="description" formControlName="description" [(ngModel)]="category.description">
+                        </div>
+            </div>
+            <div class="form-group row mb-0">
+                <label for="name" class=" font-weight-bold col-md-12 col-form-label" style="text-align:center;"><b>STOK UYARI RENKLERİ</b></label>
+                
+            </div>
+            <div class="form-group row mb-0">
+                    <label class="col-md-2"></label>
+                    <label class="col-md-3">Minimum Stok</label>
+                    <label class="col-md-3">Maksimum Stok</label>
+                    <label class="col-md-4">Stokta Yok</label>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-2"></div>
+                <div class="col-md-3"> <input [(colorPicker)]="minStockWarningColor" [style.background]="minStockWarningColor" [value]="minStockWarningColor" (colorPickerChange)="onChangeColorMinStock(minStockWarningColor)" [(ngModel)]="category.minStockWarningColor" formControlName="minStockWarningColor"/></div>
+                <div class="col-md-3"> <input [(colorPicker)]="maxStockWarningColor" [style.background]="maxStockWarningColor" [value]="maxStockWarningColor" (colorPickerChange)="onChangeColorMaxStock(maxStockWarningColor)" [(ngModel)]="category.maxStockWarningColor" formControlName="maxStockWarningColor"/></div>
+                <div class="col-md-4"> <input [(colorPicker)]="outOfStockWarningColor" [style.background]="outOfStockWarningColor" [value]="outOfStockWarningColor" (colorPickerChange)="onChangeColorOutOfStock(outOfStockWarningColor)" [(ngModel)]="category.outOfStockWarningColor" formControlName="outOfStockWarningColor"/></div>
+        </div>
+            <div class="form-group row">
+                    <label for="name" class=" font-weight-bold col-md-12 col-form-label">Kategori Ek Bilgi Alanları</label>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-2"></div>
+                <div class="col-md-10" *ngIf="category.mandatoryFields">
+                    <div class="row">
+                        <label class="col-md-2">ALAN ADI</label>
+                        <label class="col-md-2">VERİ TİPİ</label>
+                        <label class="col-md-2">ZORUNLU</label>
+                        <label class="col-md-3">TANIMDA GİRİLSİN</label>
+                        <label class="col-md-3">HAREKETTE GİRİLSİN</label>
+                        
+                    </div>
+                    <div class="row" *ngFor="let field of category.mandatoryFields; let i=index">
+                                <label class="col-md-2" style="display: inline-block;line-height: 25px;">
+                                    <b>{{field.name}}</b>
+                                </label>
+                                <label class="col-md-2" style="display: inline-block;line-height: 25px;">
+                                    <b *ngIf="field.valueType == 'int'">Numara</b>
+                                    <b *ngIf="field.valueType == 'decimal'">Kesirli</b>
+                                    <b *ngIf="field.valueType == 'bool'">Evet/Hayır</b>  
+                                    <b *ngIf="field.valueType == 'text'">Yazı</b>
+                                </label>
+                                <label class="col-md-2"  style="display: inline-block;line-height: 25px;">
+                                    <b *ngIf="field.isMandatory == true">Evet</b>
+                                    <b *ngIf="field.isMandatory == false">Hayır</b>
+                                </label>
+                                <label class="col-md-3" style="display: inline-block;line-height: 25px;">
+                                    <b *ngIf="field.isRequiredOnDefinition == true">Evet</b>
+                                    <b *ngIf="field.isRequiredOnDefinition == false">Hayır</b>
+                                </label>
+                                <label class="col-md-2">
+                                    <b *ngIf="field.isRequiredOnMove == true">Evet</b>
+                                    <b *ngIf="field.isRequiredOnMove == false">Hayır</b>
+                                </label>
+                                <div class="col-md-1">
+                                    <button class="btn btn-danger" (click)="deleteField(i)">x</button>
+                                </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row" >
+                <label for="name" class="col-md-2 col-form-label">Ek Bilgi Ekle</label>
+                    <div class="col-md-10">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-2 pr-1 pl-0">
+                                        <label>Alan Adı</label>
+                                        <input type="text" id="vT" [ngModelOptions]="{standalone: true}"  [(ngModel)]="newInfoField.name" class="form-control">
+                                    </div>
+                                    <div class="col-md-2 pl-0 pr-0">
+                                        <label>Veri Tipi</label>
+                                        <select class="form-control" id="valueType" [ngModelOptions]="{standalone: true}"  [(ngModel)]="newInfoField.valueType">
+                                            <option value="int">Numara</option>
+                                            <option value="decimal">Kesirli</option>
+                                            <option value="bool">Evet/Hayır</option>
+                                            <option value="text">Yazı</option>
+                                        </select>  
+                                    </div>
+                                    <div class="col-md-1 pl-1">
+                                        <label>Zorunlu</label>
+                                        <label class="switch switch-success mt-2">
+                                            <input type="checkbox" class="form-control"  [ngModelOptions]="{standalone: true}" [(ngModel)]="newInfoField.isMandatory"
+                                                (change)="newInfoField.isMandatory = $event.target.checked ? true : false"
+                                                [checked]="newInfoField.isMandatory == true">
+                                                <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3 pr-0">
+                                        <label><span ngbTooltip="Ürün tanımlamada bu kategorinin girilmesini istiyorsanız bu ayarı açık tutunuz." placement="bottom"
+                                               >Tanımlamada Girilsin<i class="i-Idea-2"></i></span></label>
+                                        <label class="switch switch-success mt-2">
+                                                    <input type="checkbox" class="form-control"  [ngModelOptions]="{standalone: true}" [(ngModel)]="newInfoField.isRequiredOnDefinition"
+                                                        (change)="newInfoField.isRequiredOnDefinition = $event.target.checked ? true : false"
+                                                        [checked]="newInfoField.isRequiredOnDefinition == true">
+                                                        <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3 pl-0">
+                                        <label><span ngbTooltip="Ürün hareketi eklenirken bu kategorinin girilmesini istiyorsanız bu ayarı açık tutunuz." placement="bottom"
+                                            >Harekette Girilsin<i class="i-Idea-2"></i></span></label>
+                                        <label class="switch switch-success mt-2">
+                                                <input type="checkbox" class="form-control"  [ngModelOptions]="{standalone: true}" [(ngModel)]="newInfoField.isRequiredOnMove"
+                                                    (change)="newInfoField.isRequiredOnMove = $event.target.checked ? true : false"
+                                                    [checked]="newInfoField.isRequiredOnMove == true">
+                                                    <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-outline-success" style="float:right !important;" (click)="saveCatField();">Ekle</button>                       
+                                    </div>               
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div> 
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="saveCategory()">Kaydet</button>
+      <button type="button" class="btn btn-light" (click)="categoryForm.reset();modal.dismiss('Close click');">Kapat</button>
+    </div>
+</ng-template>
+<!--Category Detail Modal-->
+<ng-template #detailModal let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title">Kategori Detayı</h4>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          
+              <div class="form-group row">
+                <div class="col-sm-3 font-weight-bold">Üst Kategori Adı:</div>
+                <div class="col-sm-9">
+                    <p>{{categoryDetail?.topCategory?.name}}</p>
+                </div>
+              </div>
+                <div class="form-group row">
+                    <div class="col-sm-3 font-weight-bold">Kategori Adı:</div>
+                    <div class="col-sm-9">
+                        <p>{{categoryDetail?.name}}</p>
+                    </div>
+                </div>
+                <div class="form-group row">
+                        <div class="col-sm-3 font-weight-bold">Minimum Stok:</div>
+                        <div class="col-sm-9">
+                          <p>{{categoryDetail?.minStockCount}}</p>
+                       </div>
+                </div>
+                <div class="form-group row">
+                        <div class="col-sm-3 font-weight-bold">Maksimum Stok:</div>
+                        <div class="col-sm-9">
+                          <p>{{categoryDetail?.maxStockCount}}</p>
+                       </div>
+                </div>
+                <div class="form-group row">
+                        <div class="font-weight-bold col-md-12">Stok Uyarı Renkleri:</div>
+                        
+                </div>
+                <div class="form-group row" >
+                    <div class="col-md-4 font-weight-bold" *ngIf="categoryDetail?.minStockWarningColor">
+                        <label>Minimum Stok</label>
+                        <div [style.background-color]="categoryDetail?.minStockWarningColor">
+                                <p>{{categoryDetail?.minStockWarningColor}}</p>
+                            </div>
+                    </div>
+                    <div class="col-md-4 font-weight-bold" *ngIf="categoryDetail?.maxStockWarningColor">
+                        <label>Maksimum Stok</label>
+                        <div [style.background-color]="categoryDetail?.maxStockWarningColor">
+                                <p>{{categoryDetail?.maxStockWarningColor}}</p>
+                            </div>
+                    </div>
+                    <div class="col-md-4 font-weight-bold" *ngIf="categoryDetail?.outOfStockWarningColor">
+                       <label> Stokta Yok</label>
+                       <div [style.background-color]="categoryDetail?.outOfStockWarningColor">
+                            <p>{{categoryDetail?.outOfStockWarningColor}}</p>
+                        </div>
+                    </div>
+            </div>
+            <div class="form-group row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Ekleyen Kullanıcı</div>
+                                <div class="card-body">
+                                    <div class="form-group row">
+                                        <div class="col-md-6">Adı Soyadı:</div>
+                                        <div class="col-md-6">{{categoryDetail?.createdUser}}</div>
+                                    </div>
+                                    <div class="form-group row">
+                                            <div class="col-md-6">Ekleme Tarihi:</div>
+                                            <div class="col-md-6">{{categoryDetail?.createdDateTime | date: 'dd/MM/yyyy H:mm'}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                                <div class="card">
+                                        <div class="card-header">Son Düzenleyen Kullanıcı</div>
+                                        <div class="card-body">
+                                            <div class="form-group row">
+                                                <div class="col-md-6">Adı Soyadı:</div>
+                                                <div class="col-md-6">{{categoryDetail?.updatedUser}}</div>
+                                            </div>
+                                            <div class="form-group row">
+                                                    <div class="col-md-6">Son Düzenleme Tarihi:</div>
+                                                    <div class="col-md-6" *ngIf="categoryDetail.updatedDateTime != '0001-01-01T00:00:00' ">{{categoryDetail?.updatedDateTime | date: 'dd/MM/yyyy H:mm'}}</div>
+                                            </div>
+                                        </div>
+                                </div>
+                        </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger mr-auto" *ngIf="userData.categoryDelete" (click)="deleteCategory(categoryDetail?.id, deleteConfirmModal); modal.close('Close click')">Kategoriyi Sil</button>
+          <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Kapat</button>
+        </div>
+    </ng-template>
+<ng-template #deleteConfirmModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-title">Kategori Sil</h4>
+        <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+            <p><strong>Kategoriyi Silmek İstediğinize Emin Misiniz?</strong></p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" ngbAutofocus class="btn btn-wide btn-danger btn-rounded" (click)="modal.close('Ok')">Evet, Sil</button>
+        <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Hayır</button>
+        
+    </div>
+</ng-template>

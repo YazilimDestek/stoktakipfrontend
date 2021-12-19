@@ -1,0 +1,270 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Kullanıcı Hesapları</h1>
+        <ul>
+            <li><a href="">Kullanıcılar Listesi</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    <div class="row mb-3">
+        <div class="col-md-12 col-sm-12 mb-3">
+            <button class="btn btn-primary float-right" (click)="addNewUser(userModal)">Yeni Kullanıcı Ekle</button>
+        </div>
+        <div class="col-md-12 col-sm-12">
+            <div class="card o-hidden" *ngIf="users?.length">
+                <ngx-datatable style="box-shadow: none" class="material" [columnMode]="'force'" [headerHeight]="50"
+                    [footerHeight]="0" [scrollbarH]="true" [rowHeight]="60" [rows]="users">
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            ID
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.id}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Kullanıcı Adı
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.username}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Silindi mi?
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.isDeleted == true ? 'Silindi' : 'Silinmedi' }}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Aktif / Pasif
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.isActive == true ? 'Aktif' : 'Pasif'}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column [minWidth]="200">
+                        <ng-template ngx-datatable-header-template>
+                            İşlemler
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            <button class="btn btn-outline-warning mr-3"
+                                (click)="updateUser(row.id, userModal)">Düzenle</button>
+                            <button class="btn btn-wide btn-outline-secondary "
+                                (click)="deleteUser(row.id, deleteUserModal)">Sil</button>
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-template #userModal let-modal>
+    <div *ngIf="editMode == false" class="modal-header">
+        <h4 class="modal-title">Yeni Kullanıcı Ekle</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div *ngIf="editMode == true" class="modal-header">
+        <h4 class="modal-title">{{subUser.name}} {{subUser.surname}} - Kullanıcı Güncelle</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form [formGroup]="subUserForm">
+            <!--<div class="form-group row">
+                    <div class="col-md-6">
+                        <label for="name" class="col-form-label font-weight-bold">Adı</label>
+                        <input type="text" class="form-control"  id="name" name="name" formControlName="name" [(ngModel)]="subUser.name">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="surname" class="col-form-label font-weight-bold">Soyadı</label>
+                        <input type="text" class="form-control" id="surname" name="surname" formControlName="surname" [(ngModel)]="subUser.surname">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                            <label for="email" class="col-form-label font-weight-bold">E-Posta</label>
+                            <input type="text" class="form-control" id="email" name="email" formControlName="email" [(ngModel)]="subUser.email">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="password" class="col-form-label font-weight-bold">Şifre</label>
+                        <input type="text" class="form-control"  id="password" required  name="password" formControlName="password" [(ngModel)]="subUser.password">
+                    </div>
+                </div>-->
+            <div class="form-group row">
+                <div class="col-md-4 col-sm-4">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 mb-2">
+                            <label class="switch switch-success font-weight-bold">
+                                <span>Admin Yetkisi</span>
+                                <input type="checkbox" [(ngModel)]="subUser.isAdmin" formControlName="isAdmin"
+                                    [checked]="subUser.isAdmin">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="name" class="col-form-label font-weight-bold">Adı</label>
+                    <input type="text" class="form-control" id="name"
+                        name="name" formControlName="name" [(ngModel)]="subUser.name">
+                </div>
+                <div class="col-md-6">
+                        <label for="surname" class="col-form-label font-weight-bold">Soyadı</label>
+                        <input type="text" class="form-control" id="surname" name="surname" formControlName="surname"
+                            [(ngModel)]="subUser.surname">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="username" class="col-form-label font-weight-bold">Kullanıcı Adı</label>
+                        <input type="text" class="form-control" [attr.disabled]="editMode ? '' : null" id="username"
+                            name="username" formControlName="username" [(ngModel)]="subUser.username">
+                            <app-field-error-display [displayError]="isFieldValidForms('username')" errorMsg="'Kullanıcı Adı' alanı boş geçilemez">
+                            </app-field-error-display>
+                    </div>
+                    <div class="col-md-6">
+                            <label for="email" class="col-form-label font-weight-bold">E-Posta</label>
+                            <input type="text" maxlength="50" class="form-control" id="email" name="email" formControlName="email"
+                                [(ngModel)]="subUser.email">
+                                <app-field-error-display [displayError]="isFieldValidForms('email')" errorMsg="Geçerli bir 'E-Posta' adresini giriniz">
+                                </app-field-error-display>
+                        </div>
+                <div class="col-md-6" *ngIf="editMode == false">
+                    <label for="password" class="col-form-label font-weight-bold">Şifre</label>
+                    <input type="text" class="form-control" id="password" name="password" formControlName="password"
+                        [(ngModel)]="subUser.password">
+                </div>
+                
+                <div class="col-md-6" *ngIf="editMode == true">
+                    <label for="password" class="col-form-label font-weight-bold"> Yeni Şifre</label>
+                    <input type="text" class="form-control" id="password" name="password" formControlName="password"
+                        [(ngModel)]="subUser.password">
+                </div>
+            </div>
+     
+
+            <div class="form-group row">
+                <label class="col-md-12 col-sm-12 mb-2 col-form-label font-weight-bold text-center"
+                    style="font-size:small">Kullanıcı Yetkileri</label>
+                <div class="col-md-4 col-sm-4">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 mb-2">
+                            <label class="switch switch-success font-weight-bold">
+                                <span>Ürün Ekleme</span>
+                                <input type="checkbox" [(ngModel)]="subUser.itemAdd" formControlName="itemAdd"
+                                    [checked]="subUser.itemAdd">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-12 col-sm-12 mb-2">
+                            <label class="switch switch-success font-weight-bold">
+                                <span>Ürün Düzenleme</span>
+                                <input type="checkbox" [(ngModel)]="subUser.itemEdit" formControlName="itemEdit"
+                                    [checked]="subUser.itemEdit">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-12 col-sm-12 mb-2">
+                            <label class="switch switch-success font-weight-bold">
+                                <span>Ürün Silme</span>
+                                <input type="checkbox" [(ngModel)]="subUser.itemDelete" formControlName="itemDelete"
+                                    [checked]="subUser.itemDelete">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-4">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 mb-2">
+                            <label class="switch switch-success font-weight-bold">
+                                <span>Kategori Ekleme</span>
+                                <input type="checkbox" [(ngModel)]="subUser.categoryAdd" formControlName="categoryAdd"
+                                    [checked]="subUser.categoryAdd">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-12 col-sm-12 mb-2">
+                            <label class="switch switch-success font-weight-bold">
+                                <span>Kategori Düzenleme</span>
+                                <input type="checkbox" [(ngModel)]="subUser.categoryAEdit"
+                                    formControlName="categoryAEdit" [checked]="subUser.categoryAEdit">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-12 col-sm-12 mb-2">
+                            <label class="switch switch-success font-weight-bold">
+                                <span>Kategori Silme</span>
+                                <input type="checkbox" [(ngModel)]="subUser.categoryDelete"
+                                    formControlName="categoryDelete" [checked]="subUser.categoryDelete">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-4">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 mb-2">
+                            <label class="switch switch-success font-weight-bold">
+                                <span>Hareket Ekleme</span>
+                                <input type="checkbox" [(ngModel)]="subUser.historyAdd" formControlName="historyAdd"
+                                    [checked]="subUser.historyAdd">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <!-- <div class="col-md-12  col-sm-12 mb-2">
+                            <label class="switch switch-success font-weight-bold">
+                                <span>Hareket Düzenleme</span>
+                                <input type="checkbox" [(ngModel)]="subUser.historyEdit" formControlName="historyEdit"
+                                    [checked]="subUser.historyEdit">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-12 col-sm-12 mb-2">
+                            <label class="switch switch-success font-weight-bold">
+                                <span>Hareket Silme</span>
+                                <input type="checkbox" [(ngModel)]="subUser.historyDelete"
+                                    formControlName="historyDelete" [checked]="subUser.historyDelete">
+                                <span class="slider"></span>
+                            </label>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="save()">Kaydet</button>
+        <button type="button" class="btn btn-light" (click)="modal.dismiss('Close click');">Kapat</button>
+    </div>
+</ng-template>
+<!--Company Delete Modal-->
+<ng-template #deleteUserModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-title">Kullanıcıyı Sil</h4>
+        <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title"
+            (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p><strong>Kullanıcıyı Silmek İstediğinize Emin Misiniz?</strong></p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" ngbAutofocus class="btn btn-wide btn-danger btn-rounded"
+            (click)="modal.close('Ok')">Evet</button>
+        <button type="button" class="btn btn-outline-secondary btn-rounded"
+            (click)="modal.dismiss('cancel')">Hayır</button>
+
+    </div>
+</ng-template>

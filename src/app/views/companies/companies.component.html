@@ -1,0 +1,121 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Firmalar</h1>
+        <ul>
+            <li><a href="">Firma Listesi</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    <div class="row mb-3">
+            <div class="col-md-12 mb-3">
+                <button class="btn btn-primary float-right" (click)="companyForm.reset();addNewCompany(newItemModal)">Yeni Firma Ekle</button>
+            </div>
+            <div class="col-md-12">
+                <div class="card o-hidden">
+                    <ngx-datatable *ngIf="companies?.length" style="box-shadow: none" class="material fullscreen" [style.height]="60*companies.length+60+'px'" [columnMode]="'force'"
+                        [headerHeight]="50" [footerHeight]="0"  [scrollbarH]="true" [rowHeight]="60" [rows]="companies">
+                        <ngx-datatable-column name="photo" [maxWidth]="100">
+                            <ng-template ngx-datatable-header-template>
+                                ID
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.id}}
+                            </ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column [maxWidth]="400" [minWidth]="200">
+                            <ng-template ngx-datatable-header-template>
+                                Firma Adı
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.name}}
+                            </ng-template>
+                        </ngx-datatable-column>
+                        <ngx-datatable-column [minWidth]="200">
+                            <ng-template ngx-datatable-header-template>
+                                İşlemler
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                <button class="btn btn-wide btn-outline-secondary mr-3" (click)="getDetail(row.id, detailModal)" >Detay</button>
+                                <button class="btn btn-outline-warning" (click)="editMode = true; updateCompany(row.id, newItemModal)">Düzenle</button>
+                            </ng-template>
+                        </ngx-datatable-column>
+                    </ngx-datatable>
+                </div>
+            </div>
+        </div>
+</div>
+<ng-template #newItemModal let-modal>
+        <div *ngIf="editMode === false" class="modal-header">
+          <h4 class="modal-title">Yeni Firma Ekle</h4>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div *ngIf="editMode === true" class="modal-header">
+            <h4 class="modal-title">{{company.name}} - Firma Güncelle</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <div class="modal-body">
+          <form [formGroup]="companyForm">
+                <div class="form-group row">
+                        <label for="name" class=" col-md-2 col-form-label">Firma Adı</label>
+                        <div class="col-md-8">
+                        <input type="text" class="form-control" id="name" name="name" formControlName="name" [(ngModel)]="company.name">
+                        <app-field-error-display [displayError]="isFieldValidForms('name')" errorMsg="'Firma Adı' alanı boş geçilemez">
+                        </app-field-error-display>
+                        </div>
+                        <div class="col-md-2"></div>
+                </div>
+                
+                
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-dark" (click)="saveCompany()">Kaydet</button>
+          <button type="button" class="btn btn-light" (click)="companyForm.reset();modal.dismiss('Close click');">Kapat</button>
+        </div>
+    </ng-template>
+    <!--Company Detail Modal-->
+    <ng-template #detailModal let-modal>
+            <div class="modal-header">
+              <h4 class="modal-title">Firma Detayı</h4>
+              <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              
+                  <div class="form-group row">
+                    <div class="col-sm-2 font-weight-bold">Firma Adı:</div>
+                    <div class="col-sm-10">
+                        <p>{{companyDetail?.name}}</p>
+                    </div>
+                  </div>
+                    
+              
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger mr-auto" (click)="deleteCompany(companyDetail?.id, deleteConfirmModal); modal.close('Close click')">Firmayı Sil</button>
+              <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Kapat</button>
+            </div>
+        </ng-template>
+        <!--Company Delete Modal-->
+        <ng-template #deleteConfirmModal let-modal>
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal-title">Firmayı Sil</h4>
+                    <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                        <p><strong>Firmayı Silmek İstediğinize Emin Misiniz?</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" ngbAutofocus class="btn btn-wide btn-danger btn-rounded" (click)="modal.close('Ok')">Evet</button>
+                    <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Hayır</button>
+                    
+                </div>
+            </ng-template>

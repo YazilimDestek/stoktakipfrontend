@@ -1,0 +1,210 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Depolar</h1>
+        <ul>
+            <li><a href="">Depo Listesi</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    <div class="row mb-3">
+        <div class="col-md-12 mb-3">
+            <button class="btn btn-primary float-right" (click)="locationForm.reset();addNewLocation(newLocationModal)">Yeni Depo Ekle</button>
+        </div>
+        <div class="col-md-12">
+            <div class="card o-hidden">
+                <ngx-datatable *ngIf="locations?.length" style="box-shadow: none" class="material fullscreen" [style.height]="60*locations.length+60+'px'" [columnMode]="'force'"
+                    [headerHeight]="50" [footerHeight]="0" [rowHeight]="60"  [rows]="locations">
+                    <ngx-datatable-column name="photo" [maxWidth]="100">
+                        <ng-template ngx-datatable-header-template>
+                            ID
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.id}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Depo Adı
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.name}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                        <ng-template ngx-datatable-header-template>
+                            Firma Adı
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            {{row.company?.name}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column>
+                            <ng-template ngx-datatable-header-template>
+                                Depo Tipi
+                            </ng-template>
+                            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                {{row.locationType?.name}}
+                            </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column  [minWidth]="200">
+                        <ng-template ngx-datatable-header-template>
+                            İşlemler
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                <button class="btn btn-wide btn-outline-secondary mr-3" (click)="getDetail(row.id, detailModal);">Detay</button>
+                                <button class="btn btn-outline-warning" (click)="updateLocation(row.id, newLocationModal); editMode = true;">Düzenle</button>
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+            </div>
+        </div>
+    </div>
+</div>
+<!--New Location Modal-->
+<ng-template #newLocationModal let-modal>
+    <div *ngIf="editMode === false"  class="modal-header">
+      <h4 class="modal-title">Yeni Depo Ekle</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div *ngIf="editMode === true" class="modal-header">
+            <h4 class="modal-title">{{location.name}} - Depo Güncelle</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click');editMode = false;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+    <div class="modal-body">
+      <form [formGroup]="locationForm">
+          
+            <div class="form-group row">
+                    <label for="name" class="col-md-2 col-form-label">Depo Adı</label>
+                    <div class="col-md-10">
+                    <input type="text" class="form-control" id="name" name="name" formControlName="name" [(ngModel)]="location.name">
+                    <app-field-error-display [displayError]="isFieldValidForms('name')" errorMsg="'Depo Adı' alanı boş geçilemez">
+                    </app-field-error-display>
+                    </div>
+            </div>
+            <div class="form-group row">
+                    <label for="name" class=" col-md-2 col-form-label">Depo Tipi</label>
+                    <div class="col-md-10">
+                            <select class="form-control" id="locationTypeId" name="locationTypeId" formControlName="locationTypeId" [(ngModel)]="location.locationTypeId">
+                                <option *ngFor="let locType of locationTypes" [ngValue]="locType.id">{{locType.name}}</option>
+                            </select>
+                            <app-field-error-display [displayError]="isFieldValidForms('locationTypeId')" errorMsg="'Depo Tipi' alanı boş geçilemez">
+                            </app-field-error-display>
+                    </div>
+            </div>
+            <div class="form-group row">
+                <label for="name" class=" col-md-2 col-form-label">Firma</label>
+                <div class="col-md-10">
+                        <select class="form-control" id="companyId" name="companyId" formControlName="companyId" [(ngModel)]="location.companyId">
+                                <option *ngFor="let company of companies" [ngValue]="company.id">{{company.name}}</option>
+                                
+                        </select>
+                        <app-field-error-display [displayError]="isFieldValidForms('companyId')" errorMsg="'Firma' alanı boş geçilemez">
+                        </app-field-error-display>
+                </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="saveLocation()">Kaydet</button>
+      <button type="button" class="btn btn-light" (click)="locationForm.reset();modal.dismiss('Close click'); editMode = false;">Kapat</button>
+    </div>
+</ng-template>
+<!--Location Detail Modal-->
+<ng-template #detailModal let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title">Depo Detayı</h4>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          
+              <div class="form-group row">
+                <div class="col-md-2 font-weight-bold">Depo Adı:</div>
+                <div class="col-md-10">
+                    <p>{{locationDetail?.name}}</p>
+                </div>
+              </div>
+              <div class="form-group row">
+                    <div class="col-md-2 font-weight-bold">Depo Tipi:</div>
+                    <div class="col-md-10">
+                        <p>{{locationDetail?.locationType?.name}}</p>
+                    </div>
+                  </div>
+                <div class="form-group row">
+                    <div class="col-md-2 font-weight-bold">Firma:</div>
+                    <div class="col-md-10">
+                        <p>{{locationDetail?.company?.name}}</p>
+                    </div>
+                </div>
+                <div class="form-group row">
+                        <div class="col-md-12 font-weight-bold">Depo Stok Detayı: </div>
+                        
+                    </div>
+                <div class="form-group row">
+                    <div class="col-md-8">
+                            <div  *ngIf="!locationStockDetail.length" class="alert alert-warning">
+                                    Bu depoya ait herhangi bir stok bilgisi bulunamadı.
+                            </div>
+                            <div  *ngIf="locationStockDetail.length > 0">
+                                    <div class="card">
+                                            <ngx-datatable  
+                                                style="box-shadow: none" 
+                                                class="material fullscreen" 
+                                                [style.height]="40*locationStockDetail.length+40+'px'" 
+                                                [columnMode]="'force'"
+                                                [headerHeight]="40" 
+                                                [footerHeight]="0" 
+                                                [rowHeight]="40" 
+                                                [rows]="locationStockDetail">
+                                                <ngx-datatable-column [minWidth]="250">
+                                                    <ng-template ngx-datatable-header-template>
+                                                        Kategori
+                                                    </ng-template>
+                                                    <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                                        {{row.categoryName}}
+                                                    </ng-template>
+                                                </ngx-datatable-column>
+                                                <ngx-datatable-column [minWidth]="250">
+                                                    <ng-template ngx-datatable-header-template>
+                                                        Adet
+                                                    </ng-template>
+                                                <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                                                        {{row.itemCount}}
+                                                </ng-template>
+                                                </ngx-datatable-column>
+                                            </ngx-datatable>
+                                    </div>
+                            </div>
+                        </div>
+                            
+                        
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger mr-auto" (click)="deleteLocation(locationDetail.id, deleteConfirmModal);modal.close('Close click')">Depoyu Sil</button>
+          <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Kapat</button>
+        </div>
+    </ng-template>
+
+    <ng-template #deleteConfirmModal let-modal>
+            <div class="modal-header">
+                <h4 class="modal-title" id="modal-title">Depoyu Sil</h4>
+                <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Depoyu Silmek İstediğinize Emin Misiniz?</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" ngbAutofocus class="btn btn-wide btn-danger btn-rounded" (click)="modal.close('Ok')">Evet, Sil</button>
+                <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Hayır</button>
+                
+            </div>
+        </ng-template>

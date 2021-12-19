@@ -1,0 +1,53 @@
+<div class="card o-hidden" [@animate]="{value:'*',params:{y:'120px',opacity:'0',delay:'100ms', duration: '400ms'}}">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="p-4">
+          <div class="auth-logo text-center">
+            <img src="assets/images/logo.png" alt="">
+          </div>
+          <h1 class="mb-3 text-18">Stok Takip Uygulaması</h1>
+          <form [formGroup]="signinForm" (ngSubmit)="signin(failModal)">
+            <div class="form-group">
+              <label for="username">Kullanıcı Adı</label>
+              <input id="username" class="form-control form-control-rounded" formControlName="username" type="text">
+            </div>
+            <div class="form-group">
+              <label for="password">Şifre</label>
+              <input id="password" class="form-control form-control-rounded" formControlName="password" type="password">
+            </div>
+            <div class="form-group">
+              <label class="switch switch-primary mt-2">
+                <span>Beni Hatırla</span>
+                <input type="checkbox" checked formControlName="remember">
+                <span class="slider"></span>
+            </label>
+            </div>
+            <!-- <button class="btn btn-rounded btn-primary btn-block mt-2">Sign In</button> -->
+            <btn-loading btnClass="btn-primary btn-rounded btn-block mt-3" [loadingText]="loadingText" [loading]="loading">
+              Giriş Yap
+            </btn-loading>
+          </form>
+
+          <div class="mt-3 text-center">
+            <a href="" class="text-muted" routerLink="/sessions/forgot"><u>Şifremi Unuttum</u></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #failModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-title">Hata !</h4>
+        <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p><strong>Bilgilerinizi kontrol ederek tekrar deneyiniz</strong></p>
+        <p *ngIf="error">{{error}}</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" ngbAutofocus class="btn btn-wide btn-danger btn-rounded" (click)="modal.close('Ok')">Tamam</button>
+    </div>
+</ng-template>
